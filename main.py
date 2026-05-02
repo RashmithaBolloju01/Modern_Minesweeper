@@ -278,27 +278,42 @@ def update_timer():
 def write_lb():
     while True:
         pname = simpledialog.askstring(title="Minesweeper", prompt="What's your Name?:")
+        if pname is None:
+            # User clicked Cancel
+            return
         if pname != "":
             break
         else:
             messagebox.showerror("Invalid", "Please enter name")
 
-    if pname != None:
+    try:
         with open(f"{app_path}/leaderboard.csv", "a", newline="") as file:
             cw = csv.writer(file)
             cw.writerow((pname, f"{time}s"))
-    clear_lb(f"{app_path}/leaderboard.csv", 10)
+        clear_lb(f"{app_path}/leaderboard.csv", 10)
+        messagebox.showinfo("Success", f"Score saved! {pname}: {time}s")
+    except Exception as e:
+        messagebox.showerror("Error", f"Failed to save score: {str(e)}")
 
 
 def clear_lb(file, limit):
     with open(file) as f:
         cr = csv.reader(f)
         res = list(cr)
+    
+    # Sort by time (second column) - remove 's' suffix and convert to int
+    try:
+        res.sort(key=lambda x: int(x[1].rstrip('s')))
+    except (ValueError, IndexError):
+        pass  # Skip sorting if there's an issue with format
+    
+    # Keep only top N scores
     if len(res) > limit:
-        res.pop(0)
-        with open(file, "w", newline="") as f:
-            cw = csv.writer(f)
-            cw.writerows(res)
+        res = res[:limit]
+    
+    with open(file, "w", newline="") as f:
+        cw = csv.writer(f)
+        cw.writerows(res)
 
 
 def show_lb():
@@ -408,59 +423,60 @@ def create_start_menu():
     
     # Easy button
     easy_btn = tk.Button(
-    button_frame,
-    text="Easy\n(6x6, 10 mines)",
-    width=20,
-    height=3,
-    font=("Arial", 14, "bold"),
-    bg="#00c853",          # bright green
-    fg="black",            # FIX: text visible
-    activebackground="#69f0ae",
-    bd=2,
-    relief="raised",
-    highlightthickness=1,
-    command=lambda: start_game("Easy")
-)
+        button_frame,
+        text="Easy\n(6x6, 10 mines)",
+        width=20,
+        height=3,
+        font=("Arial", 14, "bold"),
+        bg="#4CAF50",
+        fg="#000000",
+        activebackground="#66BB6A",
+        activeforeground="#000000",
+        bd=3,
+        relief="raised",
+        highlightthickness=2,
+        highlightbackground="#2E7D32",
+        command=lambda: start_game("Easy")
+    )
     easy_btn.pack(pady=10)
     
     # Medium button
     medium_btn = tk.Button(
-    button_frame,
-    text="Medium\n(8x8, 8 mines)",
-    width=20,
-    height=3,
-    font=("Arial", 14, "bold"),
-    bg="#ffab00",          # amber
-    fg="black",
-    activebackground="#ffd740",
-    bd=2,
-    relief="raised",
-    highlightthickness=1,
-    command=lambda: start_game("Medium")
-)
+        button_frame,
+        text="Medium\n(8x8, 8 mines)",
+        width=20,
+        height=3,
+        font=("Arial", 14, "bold"),
+        bg="#FF9800",
+        fg="#000000",
+        activebackground="#FFB74D",
+        activeforeground="#000000",
+        bd=3,
+        relief="raised",
+        highlightthickness=2,
+        highlightbackground="#E65100",
+        command=lambda: start_game("Medium")
+    )
     medium_btn.pack(pady=10)
     
     # Hard button
     hard_btn = tk.Button(
-    button_frame,
-    text="Hard\n(10x10, 30 mines)",
-    width=20,
-    height=3,
-    font=("Arial", 14, "bold"),
-    bg="#ff1744",
-    fg="white",
-    activebackground="#ff5252",
-    activeforeground="white",
-    bd=0,
-    relief="flat",
-    highlightthickness=0,
-    borderwidth=0,
-    command=lambda: start_game("Hard")
-)
-
+        button_frame,
+        text="Hard\n(10x10, 30 mines)",
+        width=20,
+        height=3,
+        font=("Arial", 14, "bold"),
+        bg="#F44336",
+        fg="#000000",
+        activebackground="#EF5350",
+        activeforeground="#FFFFFF",
+        bd=3,
+        relief="raised",
+        highlightthickness=2,
+        highlightbackground="#C62828",
+        command=lambda: start_game("Hard")
+    )
     hard_btn.pack(pady=10)
-
-    hard_btn.configure(highlightbackground="#ff1744")
 
 
 
